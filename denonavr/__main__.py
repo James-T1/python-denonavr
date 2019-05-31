@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """This module provides state information and some control of an
-`Denon AVR X1000` device over a network connection."""
+`Denon AVR 2112CI or AVR-X3400H` device over a network connection."""
+#   2112ci may need to change dynamic volume code to old commented out code
 
 import argparse
 import logging
@@ -10,11 +11,16 @@ import telnetlib
 import yaml
 from flask import Flask, jsonify
 
+# Setup for your Denon's IP address.  Recommend to set a static DHCP address for it in your router.
 CONFIG = {
-    "host": "192.168.2.25",
+    "host": "192.168.1.133",
     "port": "23",
     "timeout": 5
 }
+
+# Don't let the user hit us multiple times before a command has completed
+IN_PROGRESS = False
+DYNEQ_LAST_SETTING = -99
 
 APP = Flask(__name__)
 
@@ -148,7 +154,108 @@ def set_volume_level(level_id):
         success = True
     return jsonify(success=success)
 
+    
+# James add 
+    
+@APP.route('/ps/toggle_reflev', methods=['GET'])
+def toggle_reflev():
+    """Toggle Audyssey DynEq and Reflev.
+    :return: success
+    """
+    success = False
+    global IN_PROGRESS
+    if IN_PROGRESS:
+        return jsonify(succes=success)
+        print("Ignoring successive request...")
+    else:
+        IN_PROGRESS = True
+    
+    print("Requested DynEQ Reference Level toggle...")
 
+    #dyneq_status = execute("PSDYNEQ ?", CONFIG)
+    #reflev_setting = execute("PSREFLEV ?", CONFIG)
+    #if dyneq_status == "PSDYNEQ OFF":
+    #    execute("PSDYNEQ ON", CONFIG)
+    #    execute("PSREFLEV 0", CONFIG)
+    #elif reflev_setting == "PSREFLEV 0":
+    #    execute("PSREFLEV 5", CONFIG)
+    #elif reflev_setting == "PSREFLEV 5":
+    #    execute("PSREFLEV 10", CONFIG)
+    #elif reflev_setting == "PSREFLEV 10":
+    #    execute("PSREFLEV 15", CONFIG)
+    #elif reflev_setting == "PSREFLEV 15":
+    #    execute("PSDYNEQ OFF", CONFIG)
+    global DYNEQ_LAST_SETTING
+    # Check to see if we're using default setting.  If so find out where we are first.
+    if DYNEQ_LAST_SETTING == -99:
+        print("  Updating previous values from Denon amp...")
+        dyneq_status = execute("PSDYNEQ ?", CONFIG)
+        reflev_setting = execute("PSREFLEV ?", CONFIG)
+        if dyneq_status == "PSDYNEQ OFF":
+            DYNEQ_LAST_SETTING = -1
+        elif reflev_setting == "PSREFLEV 0":
+            DYNEQ_LAST_SETTING = 0
+        elif reflev_setting == "PSREFLEV 5":
+            DYNEQ_LAST_SETTING = 5
+        elif reflev_setting == "PSREFLEV 10":
+            DYNEQ_LAST_SETTING = 10
+        elif reflev_setting == "PSREFLEV 15":
+            DYNEQ_LAST_SETTING = 15
+    # Toggle the dyneq/reference level settings
+    print("  Performing the requested toggle based on current state:  {}".format(DYNEQ_LAST_SETTING))
+    if DYNEQ_LAST_SETTING == -1:
+        # Must turn DynEq on first or Denon will hang when you try to change the reference level.
+        execute("PSDYNEQ ON", CONFIG)
+        execute("PSREFLEV 0", CONFIG)
+        DYNEQ_LAST_SETTING = 0
+    elif DYNEQ_LAST_SETTING == 0:
+        execute("PSREFLEV 5", CONFIG)
+        DYNEQ_LAST_SETTING = 5
+    elif DYNEQ_LAST_SETTING == 5:
+        execute("PSREFLEV 10", CONFIG)
+        DYNEQ_LAST_SETTING = 10
+    elif DYNEQ_LAST_SETTING == 10:
+        execute("PSREFLEV 15", CONFIG)
+        DYNEQ_LAST_SETTING = 15
+    elif DYNEQ_LAST_SETTING == 15:
+        execute("PSDYNEQ OFF", CONFIG)
+        DYNEQ_LAST_SETTING = -1
+    success = True
+    IN_PROGRESS = False
+    print("  Completed DynEQ Reference Level toggle request.")
+    return jsonify(succes=success)
+
+@APP.route('/ps/toggle_dynvolume', methods=['GET'])
+def toggle_dynvolume():
+    """Toggle Audyssey Dynamic Volume
+    :return: success
+    """
+    success = False
+    print("Requested Dynamic Volume toggle...")
+
+    dynvol_setting = execute("PSDYNVOL ?", CONFIG)
+    if dynvol_setting == "PSDYNVOL OFF":
+        execute("PSDYNVOL DAY", CONFIG)
+        # 2112ci = NGT   (Midnight)
+        # x3500 = HEV    (High/Evening?)
+    elif dynvol_setting == "PSDYNVOL DAY":
+        execute("PSDYNVOL EVE", CONFIG)
+        # 2112ci = EVE    (Evening)
+        # x3500 = MED    (Medium)
+    elif dynvol_setting == "PSDYNVOL EVE":
+        execute("PSDYNVOL NGT", CONFIG)
+        # 2112ci = DAY   (Day)
+        # X3500 = LIT   (Lite)
+    elif dynvol_setting == "PSDYNVOL NGT":
+        execute("PSDYNVOL OFF", CONFIG)
+    success = True
+    print("  Completed Dynamic Volume toggle request.")
+    return jsonify(succes=success)
+
+# Future ideas:
+#   Toggle MultEQ setting
+#   Toggle bass level or subwoofer level
+    
 def _read_config(config_file_path):
     """ Parse Config File from yaml file. """
     global CONFIG
