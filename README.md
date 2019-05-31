@@ -21,14 +21,15 @@ It includes `denonavr_server`, an HTTP server to facilitate RESTful access to a 
     cd python-denonavr
     pip install -r requirements.txt
     Modify _main_.py to include the IP address of your Denon receiver.  
-        - You will want to set the MAC address of your Denon up as a static DHCP assignment in your router also
+        - You will also want to set the MAC address of your Denon up as a static DHCP assignment in your router
     Run:  python setup.py install
         - This will compile and create the executable
-    Open the folder:   C:\Users\<USER NAME>\AppData\Local\Programs\Python\Python37-32\Scripts\
+    Browse to the folder:   C:\Users\<USER NAME>\AppData\Local\Programs\Python\Python37-32\Scripts\
         - Run:  denonavr_server.exe
-        - Once you have everything working add a shortcut to this executable to your Startup folder
+        - Folder name may vary depending on which version of Python3 you have installed.
+        - Once you have everything working add a shortcut to this executable in your Startup folder
     Run the Autohotkey script included in the original python-denonavr folder:  AHK MCE Remote Intercepts.ahk
-        - Once you have everything working add a shortcut to this AHK script to your Startup folder
+        - Once you have everything working add a shortcut to this AHK script in your Startup folder
     Run the registry key change to remap the Red and Green buttons on the MCE remote:
         - Back up the registry key first:  [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\HidIr\Remotes\745a17a0-74d3-11d0-b6fe-00a0c90f57da]
         - Run file:   Registry- MCE Remote - v2 Color buttons to F13 on.reg
