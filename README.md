@@ -16,7 +16,7 @@ It includes `denonavr_server`, an HTTP server to facilitate RESTful access to a 
 # Installing
 1. Via source 
 ```
-    Download & extract zip archive of the code from the button on the top right
+    Download & extract zip archive of the code from the "Clone or Download" button at the top right
         - Or using git:    git clone https://github.com/toebsen/python-denonavr.git
     cd python-denonavr
     pip install -r requirements.txt
