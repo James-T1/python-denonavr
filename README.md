@@ -1,10 +1,12 @@
 
-[![Build Status](https://travis-ci.com/toebsen/python-denonavr.svg?branch=master)](https://travis-ci.com/toebsen/python-denonavr.svg?branch=master)
-
-[![Coverage Status](https://coveralls.io/repos/github/toebsen/python-denonavr/badge.svg?branch=master)](https://coveralls.io/github/toebsen/python-denonavr?branch=master)
-
-
 # python-denonavr
+#    forked from toebsen/python-denonavr
+
+#   James-T1 fork - Includes Audyssey DynEq Reference Level + Dynamic Volume toggles:
+#     * Autohotkey script to capture F13 and F14 keys
+#     * Windows 10 Registry key to remap MCE Remote green and red buttons to F13 and F14
+#     * Fork changes _main_.py code to add in the Audyssey toggles.  Works on AVR-2112ci, should also work on newer receivers but haven't tested on my X3400H yet.
+
 
 `denonavr` is a Python 3.x package that provides state information and some control of an `Denon AVR X1000` device over a network.
 This is achieved via a telnet connection and the [public protocol][1]
@@ -14,12 +16,29 @@ It includes `denonavr_server`, an HTTP server to facilitate RESTful access to a 
 # Installing
 1. Via source 
 ```
-    git clone https://github.com/toebsen/python-denonavr.git
+    Download & extract zip archive of the code from the button on the top right
+        - Or using git:    git clone https://github.com/toebsen/python-denonavr.git
     cd python-denonavr
     pip install -r requirements.txt
-    python setup.py install
-    denonavr_server -p 5567
+    Modify _main_.py to include the IP address of your Denon receiver.  
+        - You will want to set the MAC address of your Denon up as a static DHCP assignment in your router also
+    Run:  python setup.py install
+        - This will compile and create the executable
+    Open the folder:   C:\Users\<USER NAME>\AppData\Local\Programs\Python\Python37-32\Scripts\
+        - Run:  denonavr_server.exe
+        - Once you have everything working add a shortcut to this executable to your Startup folder
+    Run the Autohotkey script included in the original python-denonavr folder:  AHK MCE Remote Intercepts.ahk
+        - Once you have everything working add a shortcut to this AHK script to your Startup folder
+    Run the registry key change to remap the Red and Green buttons on the MCE remote:
+        - Back up the registry key first:  [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\HidIr\Remotes\745a17a0-74d3-11d0-b6fe-00a0c90f57da]
+        - Run file:   Registry- MCE Remote - v2 Color buttons to F13 on.reg
+    You should now be able to use the Green and Red MCE buttons to toggle the Audyssey settings.
+        - You can also use your web browser to toggle them from:  
+        -   http://127.0.0.1:5557/ps/toggle_dynvolume
+        -   http://127.0.0.1:5557/ps/toggle_reflev
 ```
+
+
 
 2. Via docker
 ```
