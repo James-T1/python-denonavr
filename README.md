@@ -3,9 +3,9 @@
 #    forked from toebsen/python-denonavr
 
 #   James-T1 fork - Includes Audyssey DynEq Reference Level + Dynamic Volume toggles:
-#     * Autohotkey script to capture F13 and F14 keys
-#     * Windows 10 Registry key to remap MCE Remote green and red buttons to F13 and F14
-#     * Fork changes _main_.py code to add in the Audyssey toggles.  Works on AVR-2112ci, should also work on newer receivers but haven't tested on my X3400H yet.
+#     * Autohotkey script to capture F13-F16 keys
+#     * Windows 10 Registry key to remap MCE Remote red/green/yellow/blue buttons to F13-F16
+#     * Fork changes _main_.py code to add in the Audyssey toggles.  Works on Denon AVR-X3400h and should work on x3500h and comparable Denon receivers as well.
 
 
 `denonavr` is a Python 3.x package that provides state information and some control of an `Denon AVR X1000` device over a network.
