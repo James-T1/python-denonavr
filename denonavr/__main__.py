@@ -21,6 +21,8 @@ CONFIG = {
 # Don't let the user hit us multiple times before a command has completed
 IN_PROGRESS = False
 DYNEQ_LAST_SETTING = -99
+LAST_TOGGLED_UP = True
+VOLUME_PREV_LEVEL = -99
 
 APP = Flask(__name__)
 
@@ -157,6 +159,99 @@ def set_volume_level(level_id):
     
 # James add 
     
+# Toggle volume up/down by 5dB for shows that like to jump all over the place in volume
+
+@APP.route('/volume/toggle', methods=['GET'])
+def volume_toggle():
+    """Set Volume level on /volume/set/*.
+
+    :param level_id: toggle volume
+    :return: success
+    """
+    #+15.5dB = 955
+    #+15dB = 95
+    #  0dB = 80
+    #-15dB = 65
+    #-40dB = 40
+    #-40.5dB = 395
+    #So... if it's >100, then divide by 10.
+    success = False
+    volume_cur_level = execute("MV?", CONFIG).replace("MV", "")
+    if volume_cur_level > 100:
+        volume_cur_level = volume_cur_level / 10.0
+    
+    print(volume_cur_level)
+    # if VOLUME_PREV_LEVEL != volume_cur_level:
+        # LAST_TOGGLED_UP = True
+    # if LAST_TOGGLED_UP:
+        # volume_new_level = volume_cur_level - 5
+        # LAST_TOGGLED_UP = False
+    # else:
+        # volume_new_level = volume_cur_level + 5
+        # LAST_TOGGLED_UP = True
+
+    # # Truncate down to 2 digits by converting to int
+    # volume_new_level = int(volume_new_level)
+    # execute("MV%02d" % volume_new_level, CONFIG)
+    success = True
+    #VOLUME_PREV_LEVEL = volume_new_level
+    return jsonify(success=success)
+
+
+@APP.route('/volume/up3', methods=['GET'])
+def volume_up3():
+    """Set Volume level on /volume/set/*.
+
+    :param level_id: toggle volume
+    :return: success
+    """
+    #+15.5dB = 955
+    #+15dB = 95
+    #  0dB = 80
+    #-15dB = 65
+    #-40dB = 40
+    #-40.5dB = 395
+    #So... if it's >100, then divide by 10.
+    success = False
+    volume_cur_level = int(execute("MV?", CONFIG).replace("MV", ""))
+    if volume_cur_level > 100:
+        volume_cur_level = volume_cur_level / 10.0
+    print(volume_cur_level)
+    volume_new_level = volume_cur_level + 3
+    # Truncate down to 2 digits by converting to int
+    volume_new_level = int(volume_new_level)
+    execute("MV%02d" % volume_new_level, CONFIG)
+    success = True
+    #VOLUME_PREV_LEVEL = volume_new_level
+    return jsonify(success=success)
+
+@APP.route('/volume/down3', methods=['GET'])
+def volume_down3():
+    """Set Volume level on /volume/set/*.
+
+    :param level_id: toggle volume
+    :return: success
+    """
+    #+15.5dB = 955
+    #+15dB = 95
+    #  0dB = 80
+    #-15dB = 65
+    #-40dB = 40
+    #-40.5dB = 395
+    #So... if it's >100, then divide by 10.
+    success = False
+    volume_cur_level = int(execute("MV?", CONFIG).replace("MV", ""))
+    if volume_cur_level > 100:
+        volume_cur_level = volume_cur_level / 10.0
+    print(volume_cur_level)
+    volume_new_level = volume_cur_level - 3
+    # Truncate down to 2 digits by converting to int
+    volume_new_level = int(volume_new_level)
+    execute("MV%02d" % volume_new_level, CONFIG)
+    success = True
+    #VOLUME_PREV_LEVEL = volume_new_level
+    return jsonify(success=success)
+    
 @APP.route('/ps/toggle_reflev', methods=['GET'])
 def toggle_reflev():
     """Toggle Audyssey DynEq and Reflev.
@@ -235,18 +330,18 @@ def toggle_dynvolume():
 
     dynvol_setting = execute("PSDYNVOL ?", CONFIG)
     if dynvol_setting == "PSDYNVOL OFF":
-        execute("PSDYNVOL DAY", CONFIG)
+        execute("PSDYNVOL LIT", CONFIG)
         # 2112ci = NGT   (Midnight)
         # x3500 = HEV    (High/Evening?)
-    elif dynvol_setting == "PSDYNVOL DAY":
-        execute("PSDYNVOL EVE", CONFIG)
+    elif dynvol_setting == "PSDYNVOL LIT":
+        execute("PSDYNVOL MED", CONFIG)
         # 2112ci = EVE    (Evening)
         # x3500 = MED    (Medium)
-    elif dynvol_setting == "PSDYNVOL EVE":
-        execute("PSDYNVOL NGT", CONFIG)
+    elif dynvol_setting == "PSDYNVOL MED":
+        execute("PSDYNVOL HEV", CONFIG)
         # 2112ci = DAY   (Day)
         # X3500 = LIT   (Lite)
-    elif dynvol_setting == "PSDYNVOL NGT":
+    elif dynvol_setting == "PSDYNVOL HEV":
         execute("PSDYNVOL OFF", CONFIG)
     success = True
     print("  Completed Dynamic Volume toggle request.")
