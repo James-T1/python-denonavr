@@ -20,9 +20,20 @@ F13:: ; [Color Red] --> Toggle DynEq
     oHttp.open("GET","http://127.0.0.1:5557/ps/toggle_reflev")
     oHttp.send()
     return
-F14:: ; [Color Red] --> Toggle DynVolume
+F14:: ; [Color Green] --> Toggle DynVolume
     oHttp := ComObjCreate("WinHttp.Winhttprequest.5.1")
     oHttp.open("GET","http://127.0.0.1:5557/ps/toggle_dynvolume")
     oHttp.send()
     return
+F15:: ; [Color Yellow] --> Toggle DynEq
+    oHttp := ComObjCreate("WinHttp.Winhttprequest.5.1")
+    oHttp.open("GET","http://127.0.0.1:5557/volume/down3")
+    oHttp.send()
+    return
+F16:: ; [Color Blue] --> Toggle DynVolume
+    oHttp := ComObjCreate("WinHttp.Winhttprequest.5.1")
+    oHttp.open("GET","http://127.0.0.1:5557/volume/up3")
+    oHttp.send()
+    return
+
 
